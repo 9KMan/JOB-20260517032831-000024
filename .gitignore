@@ -38,6 +38,12 @@ logs/
 # MinIO uploads (temporary)
 proposal_cache/
 
+# Proposals and cover letters
+PROPOSAL.md
+COVER_LETTER.txt
+*.proposal.md
+*.cover-letter.txt
+
 # OS
 .DS_Store
 Thumbs.db
