@@ -68,16 +68,10 @@ class PipelineRun(BaseModel):
 class SupplyChainNode(GraphNode):
     label: NodeLabel = NodeLabel.SUPPLIER
 
-    def __init__(self, **data):
-        if "label" not in data:
-            data["label"] = NodeLabel.SUPPLIER
-        super().__init__(**data)
+    model_config = {"populate_by_name": True}
 
 
 class SupplyChainRelationship(GraphRelationship):
     type: RelationshipType = RelationshipType.SUPPLIES
 
-    def __init__(self, **data):
-        if "type" not in data:
-            data["type"] = RelationshipType.SUPPLIES
-        super().__init__(**data)
+    model_config = {"populate_by_name": True}

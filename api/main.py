@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from typing import Dict, Any
 import logging
 from datetime import datetime
 
@@ -12,6 +13,7 @@ from api.schemas import (
     PipelineTriggerRequest,
     HealthResponse
 )
+from graph_db.models import GraphNode, GraphRelationship
 
 logger = logging.getLogger(__name__)
 
@@ -104,11 +106,11 @@ async def shortest_path(req: ShortestPathRequest):
     if not neo4j_loader:
         raise HTTPException(status_code=503, detail="No database connected")
     try:
-        query = f"""
-        MATCH path = shortestPath((a {{id: '$from_id'}})-[*..{req.max_depth}]-(b {{id: '$to_id'}}))
+        query = """
+        MATCH path = shortestPath((a {id: $from_id})-[*..$max_depth]-(b {id: $to_id}))
         RETURN path
-        """.replace("$from_id", req.from_id).replace("$to_id", req.to_id)
-        result = neo4j_loader.execute_query(query)
+        """
+        result = neo4j_loader.execute_query(query, {"from_id": req.from_id, "to_id": req.to_id, "max_depth": req.max_depth})
         return {"path": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
