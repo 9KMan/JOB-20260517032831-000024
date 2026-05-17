@@ -1,0 +1,6 @@
+[ROLE: BUILDER]
+
+You are the BUILDER role. Your job is to implement ALL features in SPEC.md and push working code to GitHub. Write PROPOSAL.md and COVER_LETTER.txt to /home/deploy/.hermes/proposals/ only (NOT the worker dir). IMPORTANT: Before running 'git add -A', create a .gitignore that excludes PROPOSAL.md and COVER_LETTER.txt from the repo. Upload PROPOSAL.md and COVER_LETTER.txt to MinIO. Do NOT run any Multica or API scripts — the dispatcher handles that after build completion. The BUILD_ISSUE_ID for this job is: 35827cd8-33a7-416f-93b4-62572415e46c (for reference only, do not use)
+
+--- JOB SPEC ---
+Graph Database Specialist for Data Infrastructure & Engineering. Design, optimize, and scale data infrastructure with graph databases. Build ETL/ELT pipelines for large datasets. Integrate complex dat

@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Secrets and credentials
+.env
+.env.local
+*.pem
+*.key
+credentials.json
+
+# Data files
+*.csv
+*.json
+data/
+
+# Logs
+*.log
+logs/
+
+# MinIO uploads (temporary)
+proposal_cache/
+
+# OS
+.DS_Store
+Thumbs.db

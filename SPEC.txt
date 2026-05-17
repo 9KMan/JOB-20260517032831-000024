@@ -1,0 +1,135 @@
+# Graph Database Specialist — Data Infrastructure & Engineering
+
+## 1. Project Overview
+
+**Client:** Graph Database Specialist (Upwork)
+**Goal:** Design, optimize, and scale a graph data infrastructure using Neo4j/AWS Neptune, build ETL/ELT pipelines for large-scale graph data ingestion, and deliver a production-ready graph query optimization framework.
+**Duration:** 1–3 months, <30 hrs/week
+**Tech Stack:** Neo4j / AWS Neptune, Cypher / Gremlin, Python, ETL orchestration
+
+---
+
+## 2. Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     DATA SOURCES                                │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
+│  │ RDBMS    │  │ APIs     │  │ CSV/JSON │  │ Cloud Storage   │ │
+│  │ (Postgres│  │ (REST    │  │ Exports  │  │ (S3 / GCS)      │ │
+│  │  /MySQL) │  │  /GraphQL│  │          │  │                  │ │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────────┬─────────┘ │
+└───────┼─────────────┼─────────────┼──────────────────┼───────────┘
+        │             │             │                  │
+        └─────────────┴─────────────┴──────────────────┘
+                              │
+                    ┌─────────▼─────────┐
+                    │   ETL / ELT Layer  │
+                    │  Python + Airflow  │
+                    │  (Extract/Transform│
+                    │   /Load)           │
+                    └─────────┬─────────┘
+                              │
+         ┌────────────────────┼────────────────────┐
+         │                    │                    │
+  ┌──────▼──────┐    ┌───────▼───────┐   ┌────────▼────────┐
+  │   Neo4j     │    │  AWS Neptune  │   │  Graph Query    │
+  │  (Primary)  │    │  (Aurora-backed│   │  Optimization   │
+  │  Community/ │    │   Gremlin API) │   │  Framework      │
+  │  Aura/Ente  │    │               │   │  (Cypher/Gremlin│
+  └─────────────┘    └───────────────┘   └─────────────────┘
+         │                    │                    │
+         └────────────────────┴────────────────────┘
+                              │
+                   ┌──────────▼──────────┐
+                   │  Graph Analytics     │
+                   │  & Application Layer │
+                   │  (Flask/FastAPI +    │
+                   │   GraphQL/REST)      │
+                   └─────────────────────┘
+```
+
+---
+
+## 3. Core Workstreams
+
+### Workstream 1: Graph Data Modeling
+- Design node/relationship schemas for client's domain (knowledge graphs, social networks, or supply chain)
+- Map relational schemas → property graph model (entities, relationships, attributes)
+- Define labels, relationship types, and索引 strategies (composite indexes, full-text indexes)
+
+### Workstream 2: ETL/ELT Pipeline for Graph Data
+- Build Python-based ETL layer to extract from Postgres/MySQL REST APIs, CSV/JSON, S3
+- Use Apache Airflow for pipeline orchestration with watermark-based incremental CDC
+- Load into Neo4j (via Cypher `LOAD CSV` or Neo4j Python Driver) and Neptune (via Gremlin)
+- Implement idempotent upserts (MERGE operations) to handle re-runs without duplication
+
+### Workstream 3: Graph Query Optimization
+- Profile Cypher queries with `EXPLAIN`/`PROFILE`
+- Optimize Gremlin traversals: predicate pushdown, early filtering, vertex-centric indexes
+- Implement query result caching (Redis) for frequently-accessed subgraph queries
+- Build parameterized query library to prevent injection and encourage plan reuse
+
+### Workstream 4: Data Integrity & Security
+- Configure Neo4j authentication (LDAP/Active Directory integration)
+- Set up Neptune IAM-db authentication
+- Implement field-level encryption for PII in graph properties
+- Build data validation layer (Python pre-load) to catch schema violations before ingest
+
+---
+
+## 4. Data Model (Neo4j Property Graph)
+
+```
+(:Source {id, type, label})
+(:Entity {id, name, properties})
+(:Relationship {type, from_id, to_id, properties, weight, created_at})
+
+Example: Supply Chain Knowledge Graph
+  (Supplier)-[:SUPPLIES {qty, lead_time}]->(Component)
+  (Component)-[:ASSEMBLES_INTO {ratio}]->(Product)
+  (Warehouse)-[:STORES {stock_level}]->(Component)
+```
+
+---
+
+## 5. API Design
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/graph/node` | POST | Create node (label, properties) |
+| `/graph/edge` | POST | Create relationship |
+| `/graph/query` | POST | Run Cypher/Gremlin query |
+| `/graph/shortest-path` | POST | Compute shortest path between nodes |
+| `/pipeline/trigger` | POST | Trigger ETL pipeline run |
+| `/pipeline/status` | GET | Get pipeline run status |
+| `/health` | GET | Health check |
+
+---
+
+## 6. Technical Decisions
+
+1. **Neo4j vs. Neptune:** Neo4j for primary dev (better Cypher ergonomics, lower cost for <10M nodes); Neptune as cloud-managed fallback for multi-region HA
+2. **ETL:** Python + Apache Airflow over managed alternatives — fine-grained control over graph transformations and retries
+3. **CDC:** Watermark-based incremental (no full re-loads) — `updated_at` column as watermark, stored in Airflow XCom
+4. **Query optimization:** Cypher `EXPLAIN` first, then apply index hints; Neptune uses Gremlin with profile() step
+5. **Graph application API:** FastAPI over Flask — native async, Pydantic validation, OpenAPI auto-docs
+
+---
+
+## 7. Out of Scope
+
+- Hardware procurement or cloud infrastructure provisioning (client-owned)
+- Real-time streaming ingestion (Kafka/Kinesis not in scope)
+- Machine learning on graph data (node embeddings, GNNs)
+- Mobile application development
+
+---
+
+## 8. Success Metrics
+
+- Graph loads 1M+ nodes and edges in <30 minutes end-to-end
+- Query latency p99 <200ms for common subgraph traversals
+- Zero data duplication after incremental CDC runs
+- All pipelines fully observable (Airflow logs + Datadog/Grafana metrics)
+- Security audit: no PII stored unencrypted, IAM least-privilege enforced
